@@ -1,0 +1,31 @@
+{
+  "category": [
+    {
+      "name": "yeah",
+      "translate": {
+        "zh-CN": "好耶",
+        "ja-JP": "yeah~"
+      }
+    }
+  ],
+  "voices": [
+    {
+      "name": "好耶",
+      "path": "好耶.mp3",
+      "date": "2020-10-26",
+      "usePicture": {
+        "zh-CN": "好耶.jpg"
+      },
+      "translate": {
+        "zh-CN": "好耶",
+        "ja-JP": "yeah~"
+      },
+      "category": "yeah",
+      "mark": {
+        "title": "好耶！！边画画边唱歌边吃棉花糖咯！！",
+        "time": "6:48~6:50",
+        "url": "https://www.bilibili.com/video/BV17T4y1F7i1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "voices-button-cli",
+  "version": "0.1.0",
+  "description": "语音按钮CLI工具",
+  "bin": {
+    "btn": "bin/btn.js"
+  },
+  "scripts": {
+    "test": "voices"
+  },
+  "author": "blacktunes",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^6.2.0",
+    "fs-extra": "^9.0.1",
+    "inquirer": "^7.3.3",
+    "validate-npm-package-name": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.13.0"
+  }
+}
