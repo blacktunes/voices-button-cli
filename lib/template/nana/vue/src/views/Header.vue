@@ -207,7 +207,7 @@ export default {
     height 30px
     margin 0 10px 0 auto
     border-radius 50%
-    background rgba(255, 255, 255, 0.5)
+    background rgba(245, 193, 187, 0.5)
     cursor pointer
 
     svg
@@ -220,7 +220,7 @@ export default {
       box-shadow 0px 0px 5px 0px #fff
 
     &:active
-      background rgba(255, 255, 255, 0.6)
+      background rgba(245, 193, 187, 0.6)
 
 @media only screen and (min-width 550px)
   .search-btn

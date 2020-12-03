@@ -8,37 +8,31 @@
         </template>
         <div class="content">
           <div v-for="voice in item.voiceList" :key="voice.name">
-            <div v-if="needToShow(voice.translate)" class="btn-wrapper">
-              <NewIcon class="icon" v-if="voice.date === showNew" />
-              <VBtn
-                :text="t('voice.' + voice.name)"
-                class="v-btn"
-                :class="{
-                  'search-list':
-                    (searchData.value &&
-                      !searchData.list.includes(voice.name)) ||
-                    (playSetting.showInfo && !voice.mark),
-                  highlight: highlight === voice.name,
-                  disable: playSetting.showInfo && !voice.mark
-                }"
-                :name="voice.name"
-                @click="
-                  playSetting.showInfo
-                    ? showInfo(voice.mark)
-                    : play(voice)
-                "
-                :ref="
-                  (el) => {
-                    el ? (btnList[voice.name] = el) : null;
-                  }
-                "
-              />
-              <img
-                class="pic"
-                v-if="needUsePicture(voice.usePicture) && !playSetting.showInfo"
-                :src="usePicture(voice.usePicture)"
-              />
-            </div>
+            <VBtn
+              v-if="needToShow(voice.translate)"
+              :text="t('voice.' + voice.name)"
+              :name="voice.name"
+              :newIcon="voice.date === showNew"
+              :showPic="
+                needUsePicture(voice.usePicture) && !playSetting.showInfo
+                  ? usePicture(voice.usePicture)
+                  : null
+              "
+              :lowlight="
+                (searchData.value && !searchData.list.includes(voice.name)) ||
+                (playSetting.showInfo && !voice.mark)
+              "
+              :highlight="highlight === voice.name"
+              :class="{
+                disable: playSetting.showInfo && !voice.mark,
+              }"
+              @click="playSetting.showInfo ? showInfo(voice.mark) : play(voice)"
+              :ref="
+                (el) => {
+                  el ? (btnList[voice.name] = el) : null;
+                }
+              "
+            />
           </div>
         </div>
       </Card>
@@ -47,23 +41,21 @@
 </template>
 
 <script lang="ts">
-import { ref, reactive, provide, inject, watch, Ref, ComponentPublicInstance } from 'vue'
+import { ref, inject, watch, Ref, ComponentPublicInstance } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { EVENT, INFO_I18N, Player, PlayerList, PlaySetting, SearchData, Translate, Voices, VoicesCategory, VoicesItem } from '@/assets/script/option'
+import { gtag } from '@/assets/script/gtag'
+import { EVENT, INFO_I18N, Player, PlayerList, PlaySetting, SearchData, Translate, Voices, VoicesItem } from '@/assets/script/option'
 import mitt from '@/assets/script/mitt'
-import VoiceList from '@/setting/translate/voices.json'
 import Setting from '@/setting/setting.json'
 import Card from './common/Card.vue'
 import VBtn from './common/VoiveBtn.vue'
 import Search from '@/components/SearchCard.vue'
-import NewIcon from '@/components/common/NewIcon.vue'
 
 export default {
   components: {
     Card,
     VBtn,
-    Search,
-    NewIcon
+    Search
   },
   setup() {
     const { t, locale } = useI18n()
@@ -97,30 +89,15 @@ export default {
       highlight.value = ''
     })
 
-    const voices: Voices = reactive([]) as Voices
-    const showNew = ref('')
+    const voices = inject('voices', {} as Voices)
+    const showNew = inject('showNew', '')
 
-    for (const i in VoiceList.voices) {
-      let lastDate = new Date('2000-01-01')
-      if (VoiceList.voices[i].date) {
-        const voiceDate = new Date(VoiceList.voices[i].date!)
-        if (voiceDate > lastDate) {
-          lastDate = voiceDate
-          showNew.value = VoiceList.voices[i].date!
-        }
-      }
-    }
-
-    VoiceList.category.forEach(category => {
-      const temp: VoicesCategory = { ...category, voiceList: [] }
-      VoiceList.voices.forEach(voice => {
-        if (voice.category === category.name) {
-          temp.voiceList.push(voice)
-        }
+    const playList: VoicesItem[] = []
+    voices.forEach(category => {
+      category.voiceList.forEach(voice => {
+        playList.push(voice)
       })
-      voices.push(temp)
     })
-    provide('voices', voices)
 
     if ('mediaSession' in navigator) {
       navigator.mediaSession.setActionHandler('nexttrack', () => {
@@ -184,15 +161,17 @@ export default {
      */
     const addPlayer = (voice: VoicesItem, key: any) => {
       reset()
+      const path = `voices/${voice.path}`
       playerList.set(key, {
         name: voice.name,
-        audio: new Audio(`voices/${voice.path}`)
+        audio: new Audio(path)
       })
       if (!playSetting.overlap) playSetting.nowPlay = voice
       playerList.get(key)!.audio.play()
       playerList.get(key)!.audio.onerror = () => {
         playSetting.loading = false
         playSetting.error = true
+        navigator.mediaSession.playbackState = 'paused'
       }
       playerList.get(key)!.audio.oncanplay = () => {
         playSetting.loading = false
@@ -221,8 +200,8 @@ export default {
               playerList.get(key)!.audio.onended = () => {
                 voices[i].voiceList[j].progress = 0
                 playerList.delete(key)
-                if (playSetting.loop) {
-                  play(voice)
+                if (playSetting.loop > 0) {
+                  listLoop(voice)
                 } else {
                   reset()
                 }
@@ -245,8 +224,7 @@ export default {
     /**
      * 随机播放失败次数
      */
-    let errTimes = 0
-
+    let randomErrTimes = 0
     /**
      * 随机播放
      */
@@ -254,13 +232,61 @@ export default {
       const randomList = voices[_getrRandomInt(voices.length)]
       const randomVoice = randomList.voiceList[_getrRandomInt(randomList.voiceList.length)]
       if (needToShow(randomList.translate) && needToShow(randomVoice.translate)) {
-        errTimes = 0
+        randomErrTimes = 0
         play(randomVoice)
-      } else if (errTimes <= 5) {
-        ++errTimes
+      } else if (randomErrTimes <= 5) {
+        ++randomErrTimes
         randomPlay()
         // 连续五次不存在停止随机
       }
+    }
+
+    /**
+     * 随机播放
+     */
+    const listLoop = (voice: VoicesItem) => {
+      if (playSetting.loop === 1) {
+        play(voice)
+      } else if (playSetting.loop === 2) {
+        const list = voices.find(voicesCategory => {
+          if (voicesCategory.name === voice.category) {
+            return voicesCategory.voiceList
+          }
+        })!.voiceList
+        const nextVoice = list[getLoopIndex(voice, list)]
+        if (nextVoice) {
+          play(nextVoice)
+        }
+      } else if (playSetting.loop === 3) {
+        const nextVoice = playList[getLoopIndex(voice, playList)]
+        if (nextVoice) {
+          play(nextVoice)
+        }
+      }
+    }
+
+    const getLoopIndex = (voice: VoicesItem, list: VoicesItem[]): number => {
+      let index = -1
+      for (const i in list) {
+        if (Number(i) === list.length - 1) {
+          index = 0
+          break
+        }
+        if (list[i].name === voice.name) {
+          index = Number(i) + 1
+          if (!isCanPlay(list[index])) {
+            index = getLoopIndex(list[index], list)
+          }
+          break
+        }
+      }
+      return index
+    }
+
+    const isCanPlay = (voice: VoicesItem) => {
+      return (voices.some(item => {
+        return item.name === voice.category && Boolean(item.translate[locale.value])
+      })) && Boolean(voice.translate[locale.value])
     }
 
     const infoDate = inject('infoDate') as any
@@ -310,7 +336,7 @@ export default {
      * 判断是否需要显示
      */
     const needToShow = (translate: Translate): boolean => {
-      return locale.value in translate
+      return Boolean(translate[locale.value])
     }
 
     /**
@@ -339,14 +365,8 @@ export default {
 
 </script>
 <style lang="stylus" scoped>
-.search-list
-  background #ccc
-
 .disable
   pointer-events none
-
-.highlight
-  background $active-color
 
 .category
   font-size 24px
@@ -356,50 +376,4 @@ export default {
 .content
   display flex
   flex-wrap wrap
-
-  .btn-wrapper
-    position relative
-    margin 5px
-
-    .icon
-      z-index 2
-      position absolute
-      top -9px
-      right -15px
-
-    .v-btn
-      transition background 0.2s
-
-    .pic
-      position absolute
-      bottom calc(100% + 10px)
-      left 50%
-      width 120%
-      min-width 100px
-      max-width 200px
-      opacity 0
-      transform translateX(-50%)
-      pointer-events none
-
-@media only screen and (min-width 600px)
-  .btn-wrapper
-    .pic
-      transition opacity 0.5s
-
-    &:hover
-      .pic
-        opacity 1
-        box-shadow 0px 5px 10px 0px $main-color
-
-@media only screen and (max-width 600px)
-  .btn-wrapper
-    .pic
-      transition opacity 0.5s
-      transition-delay 1.5s
-
-    &:active
-      .pic
-        opacity 1
-        transition opacity 0s
-        transition-delay 0s
 </style>
