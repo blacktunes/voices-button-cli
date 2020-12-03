@@ -2,11 +2,19 @@
   "name": "voices-button-cli",
   "version": "0.1.0",
   "description": "语音按钮CLI工具",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blacktunes/voices-button-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blacktunes/voices-button-cli/issues"
+  },
+  "homepage": "https://github.com/blacktunes/voices-button-cli",
   "bin": {
     "btn": "bin/btn.js"
   },
   "scripts": {
-    "test": "voices"
+    "release": "semantic-release"
   },
   "author": "blacktunes",
   "license": "GPL-3.0",
@@ -18,6 +26,20 @@
     "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "conventional-changelog-cli": "^2.1.1",
+    "conventional-changelog-cmyr-config": "^1.2.3",
+    "eslint": "^7.13.0",
+    "semantic-release": "^17.3.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "changelog": {
+    "language": "zh",
+    "authorName": false
   }
 }

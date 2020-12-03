@@ -1,0 +1,42 @@
+{
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "config": "conventional-changelog-cmyr-config"
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "config": "conventional-changelog-cmyr-config"
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# voives-button-cli(语音按钮命令行工具)"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": true
+      }
+    ],
+    [
+      "@semantic-release/github"
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "src",
+          "CHANGELOG.md",
+          "package.json"
+        ]
+      }
+    ]
+  ]
+}
