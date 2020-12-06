@@ -1,5 +1,12 @@
 # voives-button-cli(语音按钮命令行工具)
 
+## [1.0.1](https://github.com/blacktunes/voices-button-cli/compare/v1.0.0...v1.0.1) (2020-12-06)
+
+
+### ⚡ 性能优化
+
+* 优化七奈模板部分代码 ([73637c1](https://github.com/blacktunes/voices-button-cli/commit/73637c1))
+
 # 1.0.0 (2020-12-03)
 
 
