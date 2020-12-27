@@ -11,7 +11,7 @@
   },
   "homepage": "https://github.com/blacktunes/voices-button-cli",
   "bin": {
-    "btn": "bin/btn.js"
+    "button": "bin/button.js"
   },
   "scripts": {
     "release": "semantic-release"
@@ -21,6 +21,7 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "commander": "^6.2.0",
+    "ejs": "^3.1.5",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3",
     "validate-npm-package-name": "^3.0.0"

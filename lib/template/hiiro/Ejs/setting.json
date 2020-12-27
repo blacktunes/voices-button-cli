@@ -1,0 +1,40 @@
+{
+  "name": {
+    "CN": {
+      "title": "<%= TITLE_CN %>",
+      "fullName": "<%= NAME_CN %>"
+    },
+    "EN": {
+      "title": "<%= TITLE_EN %>",
+      "fullName": "<%= NAME_EN %>"
+    }
+  },
+  "header": {
+    "icon": "<%= ICON %>",
+    "youtube": "<%= YOUTUBE %>",
+    "twitter": "<%= TWITTER %>",
+    "bilibili": "<%= BILIBILI %>"
+  },
+  "footer": {
+    "author": [
+      {
+        "name": "<%= AUTHOR %>",
+        "url": "<%= AUTHOR_URL %>"
+      }
+    ],
+    "info": [
+      "<%= INFO %>"
+    ],
+    "githubUrl": "<%= GITHUB %>"
+  },
+  "console": {
+    "text": "<%= TEXT %>",
+    "size": "<%= SIZE %>",
+    "color": "<%= COLOR %>",
+    "img": "<%= IMG %>",
+    "imgWidth": "<%= IMG_WIDTH %>",
+    "imgHeight": "<%= IMG_HEIGHT %>"
+  },
+  "mediaSession": "<%= MEDIA_SESSION %>",
+  "CDN": "<%= CDN %>"
+}
