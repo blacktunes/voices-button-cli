@@ -6,7 +6,7 @@
           <div>©2020</div>
           <template v-for="(item, index) in author" :key="index">
             <a v-if="index > 0">&</a>
-            <a :href="item.url || null" target="_blank">{{item.name}}</a>
+            <a :href="item.url || null" target="_blank">{{ item.name }}</a>
           </template>
         </div>
         <div class="info">
@@ -17,7 +17,11 @@
       </div>
       <div class="text-right">
         <div class="git">
-          <IBtn class="btn" :url="githubUrl" :img="require('../assets/image/github-fill.png')" />
+          <IBtn
+            class="btn"
+            :url="githubUrl"
+            :img="require('../assets/image/github-fill.png')"
+          />
           <a :href="githubUrl" target="_blank">{{ t(INFO_I18N.toGithub) }}</a>
         </div>
         <div>{{ t(INFO_I18N.notOfficial) }}</div>
@@ -28,9 +32,18 @@
 
 <script lang="ts">
 import { useI18n } from 'vue-i18n'
-import { INFO_I18N } from '@/assets/script/option'
+import { INFO_I18N } from '@/assets/script/type'
 import IBtn from '@/components/common/IconBtn.vue'
 import Setting from '@/../setting/setting.json'
+
+const FOOTER: {
+  author?: {
+    name: string;
+    url?: string;
+  }[];
+  info?: string[];
+  githubUrl?: string;
+} = Setting['footer']
 
 export default {
   components: {
@@ -42,9 +55,9 @@ export default {
     return {
       INFO_I18N,
       t,
-      author: (Setting as any).footer && (Setting as any).footer.author ? (Setting as any).footer.author : [],
-      info: (Setting as any).footer && (Setting as any).footer.info ? (Setting as any).footer.info : [],
-      githubUrl: (Setting as any).footer && (Setting as any).footer.githubUrl ? (Setting as any).footer.githubUrl : null
+      author: FOOTER && FOOTER.author ? FOOTER.author : [],
+      info: FOOTER && FOOTER.info ? FOOTER.info : [],
+      githubUrl: FOOTER && FOOTER.githubUrl ? FOOTER.githubUrl : null
     }
   }
 }

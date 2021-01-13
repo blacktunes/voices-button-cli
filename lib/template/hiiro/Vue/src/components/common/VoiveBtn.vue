@@ -1,20 +1,47 @@
 <template>
-  <div class="wrapper" :class="{ playing, lowlight, highlight, disable }">
+  <div class="wrapper" :class="{ lowlight, highlight, disable }">
     <NewIcon class="new-icon" v-if="newIcon" />
     <img class="pic" v-if="showPic" :src="showPic" />
     <div class="left" />
     <div class="right" />
     <div class="btn">
-      <div class="progress" ref="progress"></div>
+      <div class="progress" ref="progressRef"></div>
       <span class="text">{{ text }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { inject, Ref, ref, watch } from 'vue'
-import { Voices } from '@/assets/script/option'
+import { Ref, ref, watch } from 'vue'
 import NewIcon from './NewIcon.vue'
+
+const watchProgress = (progressRef) => {
+  const progress = ref(0)
+  const playing = ref(false)
+
+  let timer: any = null
+
+  watch(progress, (val) => {
+    if (val === 0) {
+      playing.value = false
+      timer = setTimeout(() => {
+        progressRef.value.style.transition = 'width 0.2s linear'
+        progressRef.value.style.width = '0'
+      }, 200)
+    } else {
+      playing.value = true
+      clearTimeout(timer)
+      timer = null
+      progressRef.value.style.transition = 'width 0.25s linear'
+      progressRef.value.style.width = val + 1 + '%'
+    }
+  })
+
+  return {
+    progress,
+    playing
+  }
+}
 
 export default {
   components: {
@@ -25,44 +52,21 @@ export default {
     name: String,
     newIcon: Boolean,
     showPic: String,
-    lowlight: Boolean,
-    highlight: Boolean,
     disable: Boolean
   },
-  setup(props) {
-    const progress: Ref<HTMLElement> = ref() as Ref<HTMLElement>
-    let timer: any = null
+  setup() {
+    const progressRef = ref() as Ref<HTMLElement>
+    const { progress, playing } = watchProgress(progressRef)
 
-    const voices: Voices = inject('voices') as Voices
-    const playing = ref(false)
-
-    watch(() => {
-      for (const i in voices) {
-        for (const j in voices[i].voiceList) {
-          if (voices[i].voiceList[j].name === props.name) {
-            return voices[i].voiceList[j].progress
-          }
-        }
-      }
-    }, (val) => {
-      if (val === 0) {
-        playing.value = false
-        timer = setTimeout(() => {
-          progress.value.style.transition = 'width 0.2s linear'
-          progress.value.style.width = '0'
-        }, 200)
-      } else {
-        playing.value = true
-        clearTimeout(timer)
-        timer = null
-        progress.value.style.transition = 'width 0.25s linear'
-        progress.value.style.width = val! + 5 + '%'
-      }
-    })
+    const lowlight = ref(false)
+    const highlight = ref(false)
 
     return {
+      progressRef,
       progress,
-      playing
+      playing,
+      lowlight,
+      highlight
     }
   }
 }
@@ -74,34 +78,24 @@ export default {
 
 .lowlight
   &:active
-    .left
-      border-color transparent transparent $active-color transparent !important
-
-    .right
+    .left, .right
       border-color transparent transparent $active-color transparent !important
 
     .btn
       background $active-color !important
 
-      &:before
-        transform scale(2, 1)
-        opacity 1
-        transition transform 0.6s, opacity 0.2s
-        transition-delay 0.2s
-
-  .left
+  .left, .right
     border-color transparent transparent #ccc transparent !important
 
-  .right
-    border-color transparent transparent #ccc transparent !important
+    &:before
+      border-color transparent transparent #ccc transparent !important
 
   .btn
     background #ccc !important
     box-shadow none !important
 
     &:before
-      width 0 !important
-      height 0 !important
+      background #ccc !important
 
 .highlight:after
   content ''
@@ -122,15 +116,17 @@ export default {
   position relative
 
   &:active
-    .left
-      animation color 0.5s
-      animation-fill-mode forwards
+    .left, .right
+      transition none
+      border-color transparent transparent $active-color transparent !important
 
-    .right
-      animation color 0.5s
-      animation-fill-mode forwards
+      &:before
+        opacity 1
+        transition opacity 0.6s
+        transition-delay 0.2s
 
     .btn
+      transition none
       background $active-color !important
 
       &:before
@@ -156,8 +152,8 @@ export default {
     transform translateX(-50%)
     pointer-events none
 
-  .left
-    transform rotate(-32deg)
+  ears(direction, deg)
+    transform rotate(deg)
     width 0
     height 0
     border-style solid
@@ -165,20 +161,34 @@ export default {
     border-color transparent transparent $main-color transparent
     pointer-events none
     position absolute
-    left 0
+
+    if (direction == 'left')
+      left 0
+
+    if (direction == 'right')
+      right 0
+
     top -3px
 
+    &:before
+      content ''
+      position absolute
+      width 0
+      height 0
+      border-style solid
+      border-width 0 6px 8px 6px
+      border-color transparent transparent $main-color transparent
+      pointer-events none
+      position absolute
+      left -6px
+      top -1px
+      opacity 0
+
+  .left
+    ears('left', -32deg)
+
   .right
-    transform rotate(32deg)
-    width 0
-    height 0
-    border-style solid
-    border-width 0 6px 8px 6px
-    border-color transparent transparent $main-color transparent
-    pointer-events none
-    position absolute
-    right 0
-    top -3px
+    ears('right', 32deg)
 
   .btn
     display flex
@@ -228,13 +238,6 @@ export default {
   .text
     animation shake 3s linear infinite
 
-@keyframes playing
-  0%
-    width 0
-
-  100%
-    width 100%
-
 @keyframes shake
   0%
     transform translateY(0px)
@@ -264,16 +267,6 @@ export default {
   to
     opacity 1
 
-@keyframes color
-  0%
-    border-color transparent transparent $active-color transparent
-
-  30%
-    border-color transparent transparent $active-color transparent
-
-  100%
-    border-color transparent transparent $main-color transparent
-
 @media only screen and (min-width 600px)
   .wrapper
     .pic
@@ -293,9 +286,6 @@ export default {
       .btn
         background $hover-color
         box-shadow 0px 2px 10px 0px $main-color
-
-        .text
-          animation shake 3s linear infinite
 
 @media only screen and (max-width 600px)
   .wrapper

@@ -47,10 +47,33 @@
 <script lang="ts">
 import { ref, inject, onMounted, Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { INFO_I18N, IsShowSearch, SearchData } from '@/assets/script/option'
+import { INFO_I18N, SearchData } from '@/assets/script/type'
 import IBtn from '@/components/common/IconBtn.vue'
 import Search from '@/components/Search.vue'
 import Setting from '@/../setting/setting.json'
+
+const HEADER: {
+  icon?: string;
+  youtube?: string;
+  twitter?: string;
+  bilibili?: string;
+} = Setting['header'] || {}
+
+const onLogoClick = (logo) => {
+  let isRestart = false
+  const logoClick = () => {
+    if (!logo.value) return
+    if (isRestart) {
+      logo.value.style.animation = 'logo 1s'
+      isRestart = !isRestart
+    } else {
+      logo.value.style.animation = 'logo-restart 1s'
+      isRestart = !isRestart
+    }
+  }
+
+  return logoClick
+}
 
 export default {
   components: {
@@ -58,41 +81,32 @@ export default {
     Search
   },
   setup() {
+    const btnList = [
+      {
+        url: HEADER.youtube,
+        img: require('../assets/image/youtube-fill.png')
+      },
+      {
+        url: HEADER.twitter,
+        img: require('../assets/image/twitter-fill.png')
+      },
+      {
+        url: HEADER.bilibili,
+        img: require('../assets/image/bilibili-fill.png')
+      }
+    ]
+
+    // 点击图标时的放大动画
+    const logo = ref() as Ref<HTMLElement>
+    const logoClick = onLogoClick(logo)
+
+    const isShowSearch = inject('isShowSearch') as Ref<boolean>
+
     const searchData: SearchData = inject('searchData') as SearchData
 
-    let btnList: { url: string | false; img: string }[] = []
-    if ((Setting as any).header) {
-      btnList = [
-        {
-          url: (Setting as any).header.youtube || false,
-          img: require('../assets/image/youtube-fill.png')
-        },
-        {
-          url: (Setting as any).header.twitter || false,
-          img: require('../assets/image/twitter-fill.png')
-        },
-        {
-          url: (Setting as any).header.bilibili || false,
-          img: require('../assets/image/bilibili-fill.png')
-        }
-      ]
-    }
-
-    const logo: Ref<HTMLElement> = ref() as Ref<HTMLElement>
-    let isRestart = false
-    const logoClick = () => {
-      if (!logo.value) return
-      if (isRestart) {
-        logo.value.style.animation = 'logo 1s'
-        isRestart = !isRestart
-      } else {
-        logo.value.style.animation = 'logo-restart 1s'
-        isRestart = !isRestart
-      }
-    }
-
-    const isShowSearch: Ref<IsShowSearch> = inject('isShowSearch') as Ref<IsShowSearch>
-
+    /**
+     * 现实隐藏/搜索并重置搜索
+     */
     const showSearch = () => {
       isShowSearch.value = !isShowSearch.value
       if (!isShowSearch.value) {
@@ -103,6 +117,9 @@ export default {
 
     const { t, locale } = useI18n()
 
+    /**
+     * 切换语言
+     */
     const changeLang = () => {
       searchData.value = ''
       searchData.list.length = 0
@@ -117,6 +134,7 @@ export default {
       }
     }
 
+    // 初次加载时获取localStorage的语言设定
     onMounted(() => {
       const lang = localStorage.getItem('lang')
       if (lang) locale.value = lang
@@ -124,7 +142,7 @@ export default {
     })
 
     return {
-      icon: Setting.header.icon,
+      icon: HEADER.icon || '',
       btnList,
       logo,
       logoClick,
@@ -138,6 +156,10 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.logo-enter-active
+  animation logo 1s
+  animation-delay 0.5s
+
 .header
   z-index 5
   display flex

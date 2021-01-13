@@ -22,7 +22,7 @@ program
 
 program.on('--help', () => {
   console.log()
-  console.log(`  Run ${chalk.cyan(`vue <command> --help`)} for detailed usage of given command.`)
+  console.log(`  Run ${chalk.cyan(`button <command> --help`)} for detailed usage of given command.`)
   console.log()
 })
 
