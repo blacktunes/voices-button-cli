@@ -1,0 +1,23 @@
+﻿{
+  "voices": [
+    {
+      "categoryName": "cutewolf",
+      "categoryDescription": {
+        "zh-CN": "▌萝莉狼",
+        "ja-JP": "▌ロリミオ",
+        "en-US": "▌Loli Mio"
+      },
+      "voiceList": [
+        {
+          "name": "mio-31",
+          "path": "mio-31.mp3",
+          "description": {
+            "zh-CN": "那个...!啊！被表扬了！好开心！哈、哈、哈哈哈",
+            "ja-JP": "ええと...！あのう！褒められてる！嬉しい！ハハハ...",
+            "en-US": "Well...! Ah! I've been praised! I'm so glad! Hahaha..."
+          }
+        }
+      ]
+    }
+  ]
+}

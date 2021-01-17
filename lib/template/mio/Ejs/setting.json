@@ -1,0 +1,20 @@
+{
+  "title": {
+    "CN": "<%= TITLE_CN %>",
+    "JP": "<%= TITLE_JP %>",
+    "US": "<%= TITLE_US %>"
+  },
+  "footer": {
+    "author": [
+      {
+        "name": "<%= AUTHOR %>",
+        "url": "<%= AUTHOR_URL %>"
+      }
+    ],
+    "info": [
+      "<%= INFO %>"
+    ],
+    "github": "<%= GITHUB %>"
+  },
+  "CDN": "<%= CDN %>"
+}
