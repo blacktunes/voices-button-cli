@@ -235,12 +235,10 @@ const initControl = () => {
   }
 
   const overlapChange = () => {
-    playSetting.autoRandom = false
     playSetting.overlap = !playSetting.overlap
   }
 
   const autoRandomChange = () => {
-    playSetting.overlap = false
     playSetting.loop = 0
     playSetting.autoRandom = !playSetting.autoRandom
   }
