@@ -26,6 +26,11 @@ export enum INFO_I18N {
   fullName = 'info.fullName',
   vtbbtn = 'vtbbtn',
   voiceTotal = 'voiceTotal',
+  hideVoiceTotal = 'hideVoiceTotal',
+  newVoice = 'newVoice',
+  hideNewVoice = 'hideNewVoice',
+  lastDate = 'lastDate',
+  hideLastDate = 'hideLastDate',
   voiceTotalTip = 'voiceTotalTip',
   lang = 'lang'
 }
@@ -77,6 +82,10 @@ export interface PlaySetting {
    * 是否开启详情显示
    */
   showInfo: boolean;
+  /**
+   * 是否显示隐藏
+   */
+  showHide: boolean;
 }
 
 /**
@@ -97,7 +106,7 @@ export interface SearchData {
   index: number;
 }
 
-export type Voices = VoicesCategory[] | VoicesOrigin[]
+export type Voices = VoicesOrigin[] | VoicesCategory[];
 
 /**
  * 来源分类
@@ -111,14 +120,16 @@ export interface VoicesOrigin {
 /**
  * 语音分类
  */
-export interface VoicesCategory {
-  name: string;
-  translate: Translate;
+export type VoicesCategory = CategoryItem & {
   voiceList: VoicesItem[];
 }
 
 export interface CategoryItem {
   name: string;
+  /**
+   * 是否为隐藏
+   */
+  hide?: boolean;
   translate: Translate;
 }
 
@@ -143,6 +154,10 @@ export interface VoicesItem {
    * 所属分类
    */
   category: string;
+  /**
+   * 是否为隐藏
+   */
+  hide?: boolean;
   /**
    * 添加日期
    */

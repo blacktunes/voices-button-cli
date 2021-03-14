@@ -27,4 +27,13 @@
 
   .card-text
     padding 15px 10px
+
+@media (prefers-color-scheme dark)
+  .card-wrapper
+    background-color #444
+    color $title-color-dark
+    border 1px solid #555
+
+    .card-header
+      border-color #555
 </style>

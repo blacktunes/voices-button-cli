@@ -4,7 +4,10 @@ const jsonList = require.context('@/../setting/translate', false, /.json$/).keys
   return item.substring(2)
 })
 
-let Locales
+let Locales: {
+  'zh-CN': any;
+  'en-US': any;
+}
 let CategoryList: CategoryItem[]
 let VoicesList: VoicesItem[] = []
 jsonList.forEach(name => {

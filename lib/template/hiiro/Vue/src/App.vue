@@ -10,11 +10,11 @@
 <script lang="ts">
 import { provide, reactive, ref, Ref, computed } from 'vue'
 import { PlaySetting, SearchData, VoicesOrigin, VoicesCategory, VoicesItem, Mark } from '@/assets/script/type'
+import { CategoryList, VoicesList } from '@/assets/script/voices'
 import Setting from '@/../setting/setting.json'
 import VHeader from '@/views/Header.vue'
 import Control from '@/views/Control.vue'
 import VFooter from '@/views/Footer.vue'
-import { CategoryList, VoicesList } from './assets/script/voices'
 
 const CONSOLE = Setting['console'] || {}
 if (CONSOLE && (CONSOLE.text || CONSOLE.img)) {
@@ -40,40 +40,20 @@ const initPlaySetting = () => {
     overlap: false,
     autoRandom: false,
     loop: 0,
-    showInfo: false
+    showInfo: false,
+    showHide: false
   })
+  const info = localStorage.getItem('info')
+  if (info) playSetting.showInfo = JSON.parse(info)
   provide('playSetting', playSetting)
 
   return playSetting
 }
 
 /**
- * 获取最后更新时间和更新数量
- */
-const initVoicesDate = () => {
-  const lastDate = ref('')
-  let temp: null | Date = null
-  for (const i in VoicesList) {
-    if (VoicesList[i].date) {
-      const voiceDate = new Date(VoicesList[i].date!)
-      if (!temp) {
-        temp = voiceDate
-        lastDate.value = VoicesList[i].date!
-      }
-      if (voiceDate > temp) {
-        temp = voiceDate
-        lastDate.value = VoicesList[i].date!
-      }
-    }
-  }
-  provide('lastDate', lastDate)
-  provide('newVoiceNum', VoicesList.filter((item) => item.date && item.date === lastDate.value).length)
-}
-
-/**
  * 初始化语音列表
  */
-const initVoicesList = (playSetting) => {
+const initVoicesList = (playSetting: PlaySetting) => {
   // 获取分类排序列表
   const categoryList: VoicesCategory[] = []
   CategoryList.forEach(category => {
@@ -116,7 +96,7 @@ const initVoicesList = (playSetting) => {
     }
   })
   for (const i in temp1) {
-    originList.push({
+    originList.unshift({
       title: i,
       url: temp1[i].url,
       voiceList: temp1[i].list
@@ -169,7 +149,6 @@ export default {
   },
   setup() {
     const playSetting = initPlaySetting()
-    initVoicesDate()
     initVoicesList(playSetting)
     initData()
   }
@@ -181,8 +160,11 @@ body
   margin 0
   -webkit-tap-highlight-color rgba(0, 0, 0, 0)
 
+@media (prefers-color-scheme dark)
+  body
+    background-color #555
+
 a
-  margin-left 5px
   color #888
   text-decoration none
 
