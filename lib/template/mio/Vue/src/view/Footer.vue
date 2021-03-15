@@ -6,17 +6,30 @@
         <template v-for="(item, index) in author">
           <div :key="index">
             <a style="margin-left: 5px" v-if="index > 0">&</a>
-            <a style="margin-left: 5px" :href="item.url || null" target="_blank">{{ item.name }}</a>
+            <a
+              style="margin-left: 5px"
+              :href="item.url || null"
+              target="_blank"
+              >{{ item.name }}</a
+            >
           </div>
         </template>
       </div>
       <div class="not-official">{{ $t("info.notOfficial") }}</div>
       <div class="info">
-        <div>create by <a href="https://github.com/blacktunes/voices-button-cli" target="_blank">voices-button-cli</a></div>
+        <div>
+          Created by
+          <a href="https://github.com/blacktunes/voices-button-cli"
+            >voices-button-cli</a
+          >{{ " / "
+          }}<a href="https://github.com/vbup-osc/mio-button">mio-button</a>
+        </div>
         <template v-for="(item, index) in info">
           <div :key="index" v-html="item"></div>
         </template>
-        <a style="margin-left: 0" v-if="github" :href="github">{{ $t("info.toGithub") }}</a>
+        <a style="margin-left: 0" v-if="github" :href="github">{{
+          $t("info.toGithub")
+        }}</a>
       </div>
     </div>
   </div>
