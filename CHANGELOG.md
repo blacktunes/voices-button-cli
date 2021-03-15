@@ -1,5 +1,12 @@
 # voives-button-cli(语音按钮命令行工具)
 
+## [1.6.1](https://github.com/blacktunes/voices-button-cli/compare/v1.6.0...v1.6.1) (2021-03-15)
+
+
+### 🐛 Bug 修复
+
+* 添加创建工具说明 ([c14da4f](https://github.com/blacktunes/voices-button-cli/commit/c14da4f))
+
 # [1.6.0](https://github.com/blacktunes/voices-button-cli/compare/v1.5.0...v1.6.0) (2021-03-14)
 
 
