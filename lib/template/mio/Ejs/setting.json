@@ -4,6 +4,12 @@
     "JP": "<%= TITLE_JP %>",
     "US": "<%= TITLE_US %>"
   },
+  "links": [
+    {
+      "title": "狼按钮",
+      "url": "ht,tps: //,ookamimio.org/"
+    }
+  ],
   "footer": {
     "author": [
       {

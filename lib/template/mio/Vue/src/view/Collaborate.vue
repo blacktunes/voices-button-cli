@@ -2,10 +2,7 @@
   <Card>
     <template #header>
       {{ $t("action.adtitle") }}
-      <Button
-        :value="$t('action.vtbbtn')"
-        url="https://vtbbtn.org"
-      />
+      <Button :value="$t('action.vtbbtn')" url="https://vtbbtn.org" />
       <Button
         v-for="(item, index) in list"
         :key="index"
@@ -19,6 +16,9 @@
 <script>
 import Card from '@/components/common/Card'
 import Button from '@/components/common/Button'
+import Setting from '@/../setting/setting.json'
+
+const LINKS = Setting['links'] || []
 
 export default {
   components: {
@@ -27,12 +27,7 @@ export default {
   },
   data() {
     return {
-      list: [
-        {
-          title: '狼按钮',
-          url: 'https://ookamimio.org/'
-        }
-      ]
+      list: LINKS
     }
   }
 }
