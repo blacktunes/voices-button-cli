@@ -15,6 +15,18 @@
     "twitter": "<%= TWITTER %>",
     "bilibili": "<%= BILIBILI %>"
   },
+  "link": [
+    {
+      "name": "Hiiro按钮",
+      "url": "https: //hiiro.club/",
+      "background": "#F5C1BB"
+    },
+    {
+      "name": "七奈按钮",
+      "url": "https: //kaguranana.moe/",
+      "background": "#c4afd0"
+    }
+  ],
   "footer": {
     "author": [
       {
