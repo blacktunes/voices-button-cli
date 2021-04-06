@@ -1,14 +1,14 @@
 import Setting from '@/../setting/setting.json'
 import mitt from '@/assets/script/mitt'
 import { EVENT, INFO_I18N, Mark, Player, PlayerList, PlaySetting, SearchData, Translate, Voices, VoicesCategory, VoicesItem, VoicesOrigin } from '@/assets/script/type'
-import { getCategory, getrRandomInt } from '@/assets/script/utils'
+import { getCategory, getRandomInt } from '@/assets/script/utils'
 import { ComputedRef, inject, reactive, ref, Ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const MEDIA = Setting['mediaSession']
 const CDN = Setting['CDN']
 
-const useSearch = (btnList) => {
+const useSearch = (btnList: { [name: string]: any }) => {
   const searchData: SearchData = inject('searchData') as SearchData
   // 需要高亮显示的name
   const highlight = ref('')
@@ -94,6 +94,7 @@ const createPlayer = (btnList: { [name: string]: any }) => {
     playSetting.nowPlay = null
     playSetting.error = false
     infoDate.value = null
+    navigator.mediaSession.playbackState = 'none'
   }
 
   const playerList: PlayerList = new Map()
@@ -101,7 +102,6 @@ const createPlayer = (btnList: { [name: string]: any }) => {
   /**
    * 播放语音
    * @param voice 语音对象
-   * @param category 所属分类的name
    */
   const play = (voice: VoicesItem) => {
     // 可在此处增加播放统计相关代码
@@ -158,7 +158,7 @@ const createPlayer = (btnList: { [name: string]: any }) => {
       } else {
         playSetting.loading = false
         playSetting.error = true
-        navigator.mediaSession.playbackState = 'paused'
+        navigator.mediaSession.playbackState = 'none'
       }
     }
     playerList.get(key)!.audio.oncanplay = () => {
@@ -212,7 +212,7 @@ const createPlayer = (btnList: { [name: string]: any }) => {
         })
       }
     })
-    play(list[getrRandomInt(list.length)])
+    play(list[getRandomInt(list.length)])
   }
 
   /**
@@ -365,7 +365,7 @@ const createPlayer = (btnList: { [name: string]: any }) => {
    * 返回需要显示的表情包url
    */
   const getPicUrl = (usePicture?: Translate) => {
-    return usePicture && Boolean(usePicture[locale.value]) ? `/voices/img/${usePicture[locale.value]}` : null
+    return usePicture && Boolean(usePicture[locale.value]) ? `/voices/img/${usePicture[locale.value]}` : undefined
   }
 
   return {
@@ -380,8 +380,22 @@ const createPlayer = (btnList: { [name: string]: any }) => {
   }
 }
 
+const initListen = (btnList: { [name: string]: any }) => {
+  mitt.on(EVENT.nameClick, (name?: string) => {
+    if (!name) return
+    for (const i in btnList) {
+      if (i === name) {
+        const scrollPos = document.documentElement.scrollTop + btnList[i].$el.getBoundingClientRect().top - 200
+        window.scrollTo({ top: scrollPos, behavior: 'smooth' })
+        break
+      }
+    }
+  })
+}
+
 export {
   useSearch,
   getBtnList,
-  createPlayer
+  createPlayer,
+  initListen
 }

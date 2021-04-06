@@ -9,6 +9,7 @@
       "fullName": "<%= NAME_EN %>"
     }
   },
+  "readme": "",
   "header": {
     "icon": "<%= ICON %>",
     "youtube": "<%= YOUTUBE %>",

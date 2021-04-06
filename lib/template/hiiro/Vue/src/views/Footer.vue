@@ -18,15 +18,6 @@
           <template v-for="(item, index) in info" :key="index">
             <div v-html="item"></div>
           </template>
-          <div>
-            Created by
-            <a href="https://github.com/blacktunes/voices-button-cli"
-              >voices-button-cli</a
-            >{{ " / "
-            }}<a href="https://github.com/blacktunes/hiiro-button"
-              >hiiro-button</a
-            >
-          </div>
         </div>
       </div>
       <div class="text-right">
