@@ -1,5 +1,12 @@
 # voives-button-cli(语音按钮命令行工具)
 
+# [1.9.0](https://github.com/blacktunes/voices-button-cli/compare/v1.8.0...v1.9.0) (2021-05-08)
+
+
+### ✨ 新功能
+
+* 更新Hiiro按钮模板 ([3bef235](https://github.com/blacktunes/voices-button-cli/commit/3bef235))
+
 # [1.8.0](https://github.com/blacktunes/voices-button-cli/compare/v1.7.0...v1.8.0) (2021-04-06)
 
 
