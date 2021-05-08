@@ -4,11 +4,14 @@ import { EVENT, INFO_I18N, Mark, Player, PlayerList, PlaySetting, SearchData, Tr
 import { getCategory, getRandomInt } from '@/assets/script/utils'
 import { ComputedRef, inject, reactive, ref, Ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const MEDIA = Setting['mediaSession']
 const CDN = Setting['CDN']
 
 const useSearch = (btnList: { [name: string]: any }) => {
+  const router = useRouter()
+
   const searchData: SearchData = inject('searchData') as SearchData
   // 需要高亮显示的name
   const highlight = ref('')
@@ -25,12 +28,22 @@ const useSearch = (btnList: { [name: string]: any }) => {
       btnList[i].highlight = i === highlight.value
     }
   })
-  // 搜索栏文字改变时清除高亮
+
   watch(() => searchData.value, (newVal, oldVal) => {
+    // 搜索栏文字改变时清除路由参数
+    if (oldVal && 'k' in router.currentRoute.value.query) {
+      router.push({
+        query: {}
+      })
+    }
+
+    // 搜索栏文字改变时清除高亮
     if (newVal !== oldVal) {
       searchData.index = 0
     }
-    highlight.value = ''
+    if (highlight.value) {
+      highlight.value = ''
+    }
   })
 
   // 滚动到高亮的DOM
@@ -94,7 +107,6 @@ const createPlayer = (btnList: { [name: string]: any }) => {
     playSetting.nowPlay = null
     playSetting.error = false
     infoDate.value = null
-    navigator.mediaSession.playbackState = 'none'
   }
 
   const playerList: PlayerList = new Map()
@@ -158,7 +170,6 @@ const createPlayer = (btnList: { [name: string]: any }) => {
       } else {
         playSetting.loading = false
         playSetting.error = true
-        navigator.mediaSession.playbackState = 'none'
       }
     }
     playerList.get(key)!.audio.oncanplay = () => {
@@ -312,6 +323,9 @@ const createPlayer = (btnList: { [name: string]: any }) => {
     }
     playerList.clear()
     reset()
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'none'
+    }
   })
 
   /**

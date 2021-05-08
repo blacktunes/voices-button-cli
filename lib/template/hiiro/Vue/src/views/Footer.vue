@@ -19,6 +19,15 @@
             <div v-html="item"></div>
           </template>
         </div>
+        <div>
+            Created by
+            <a href="https://github.com/blacktunes/voices-button-cli"
+              >voices-button-cli</a
+            >{{ " / "
+            }}<a href="https://github.com/blacktunes/hiiro-button"
+              >hiiro-button</a
+            >
+          </div>
       </div>
       <div class="text-right">
         <div class="git">
@@ -62,7 +71,7 @@ export default {
       t,
       author: FOOTER && FOOTER.author ? FOOTER.author : [],
       info: FOOTER && FOOTER.info ? FOOTER.info : [],
-      githubUrl: FOOTER && FOOTER.githubUrl ? FOOTER.githubUrl : null
+      githubUrl: FOOTER && FOOTER.githubUrl ? FOOTER.githubUrl : undefined
     }
   }
 }
