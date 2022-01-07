@@ -1,31 +1,41 @@
 <template>
   <transition name="slide-up" appear>
     <div class="control">
-      <div class="playing">
-        <transition name="fade">
-          <Loading
-            v-if="playSetting.nowPlay && playSetting.loading"
-            class="tip"
-          />
+      <div class="wrapper">
+        <transition name="slide-up-text">
+          <div class="playing" v-if="!showNext">
+            <div class="text" @click="toBtn()">
+              {{
+                text + time
+              }}
+              <transition name="fade">
+                <Loading v-if="playSetting.nowPlay && playSetting.loading" class="tip" />
+              </transition>
+              <transition name="fade-delay">
+                <Error
+                  v-if="playSetting.nowPlay && playSetting.error && !playSetting.overlap"
+                  class="tip"
+                />
+              </transition>
+            </div>
+          </div>
+          <div class="playing" v-else>
+            <div class="text" @click="toBtn()">
+              {{
+                next + time
+              }}
+              <transition name="fade">
+                <Loading v-if="playSetting.nowPlay && playSetting.loading" class="tip" />
+              </transition>
+              <transition name="fade-delay">
+                <Error
+                  v-if="playSetting.nowPlay && playSetting.error && !playSetting.overlap"
+                  class="tip"
+                />
+              </transition>
+            </div>
+          </div>
         </transition>
-        <transition name="fade-delay">
-          <Error v-if="playSetting.nowPlay && playSetting.error" class="tip" />
-        </transition>
-        <div
-          :style="{
-            userSelect: 'none',
-            textDecoration: isError,
-            cursor: playSetting.nowPlay ? 'pointer' : ''
-          }"
-          @click="toBtn()"
-        >
-          {{ title
-          }}{{
-            playSetting.showInfo && infoDate && infoDate.time
-              ? `(${infoDate.time})`
-              : ""
-          }}
-        </div>
       </div>
       <div class="btn-wrapper">
         <ControlIcon type="randomPlay" />
@@ -39,84 +49,62 @@
   </transition>
 </template>
 
-<script lang="ts">
-import { inject, computed, Ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { ACTION_I18N, PlaySetting, Mark, EVENT } from '@/assets/script/type'
+<script lang="ts" setup>
 import mitt from '@/assets/script/mitt'
-import Loading from '@/components/common/Loading.vue'
+import { ACTION_I18N, EVENT } from '@/assets/script/type'
 import Error from '@/components/common/Error.vue'
+import Loading from '@/components/common/Loading.vue'
 import ControlIcon from '@/components/Control/ControlIcon.vue'
+import { infoDate } from '@/store/data'
+import { playSetting } from '@/store/setting'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-const initControl = () => {
-  const { t } = useI18n()
-  const playSetting = inject('playSetting') as PlaySetting
+const { t } = useI18n()
 
-  // 控制栏文字显示
-  const title = computed(() => {
-    if (playSetting.overlap) {
-      return t(ACTION_I18N.overlapTip)
-    } else if (playSetting.nowPlay) {
-      return t('voice.' + playSetting.nowPlay.name)
-    } else if (playSetting.autoRandom) {
-      return t(ACTION_I18N.autoRandomTip)
-    } else if (playSetting.loop === 1) {
-      return t(ACTION_I18N.loopTip1)
-    } else if (playSetting.loop === 2) {
-      return t(ACTION_I18N.loopTip2)
-    } else if (playSetting.loop === 3) {
-      return t(ACTION_I18N.loopTip3)
-    } else {
-      return t(ACTION_I18N.noplay)
-    }
-  })
+// 控制栏文字显示
+const title = computed(() => {
+  if (playSetting.overlap) {
+    return t(ACTION_I18N.overlapTip)
+  } else if (playSetting.nowPlay) {
+    return t('voice.' + playSetting.nowPlay.name)
+  } else if (playSetting.autoRandom) {
+    return t(ACTION_I18N.autoRandomTip)
+  } else if (playSetting.loop === 1) {
+    return t(ACTION_I18N.loopTip1)
+  } else if (playSetting.loop === 2) {
+    return t(ACTION_I18N.loopTip2)
+  } else if (playSetting.loop === 3) {
+    return t(ACTION_I18N.loopTip3)
+  } else {
+    return t(ACTION_I18N.noplay)
+  }
+})
 
-  const isError = computed(() => {
-    return playSetting.error ? 'line-through' : 'none'
-  })
+const showNext = ref(false)
+const text = ref(t(ACTION_I18N.noplay))
+const next = ref('')
 
-  const infoDate = inject('infoDate') as Ref<Mark | null>
+watch(title, val => {
+  if (showNext.value) {
+    text.value = val
+  } else {
+    next.value = val
+  }
+  showNext.value = !showNext.value
+})
 
-  return {
-    isError,
-    title,
-    playSetting,
-    infoDate
+const time = computed(() => playSetting.showInfo && infoDate.value && infoDate.value.time ? `(${infoDate.value.time})` : '')
+
+const toBtn = () => {
+  if (playSetting.nowPlay) {
+    mitt.emit(EVENT.nameClick, playSetting.nowPlay.name)
   }
 }
 
-export default {
-  components: {
-    Loading,
-    Error,
-    ControlIcon
-  },
-  setup() {
-    const { t } = useI18n()
-    const {
-      isError,
-      title,
-      playSetting,
-      infoDate
-    } = initControl()
-
-    const toBtn = () => {
-      if (playSetting.nowPlay) {
-        mitt.emit(EVENT.nameClick, playSetting.nowPlay.name)
-      }
-    }
-
-    return {
-      ACTION_I18N,
-      t,
-      isError,
-      title,
-      playSetting,
-      infoDate,
-      toBtn
-    }
-  }
-}
+// css
+const isError = computed(() => playSetting.error && !playSetting.overlap ? 'line-through' : 'none')
+const isPlaying = computed(() => playSetting.nowPlay ? 'pointer' : '')
 </script>
 
 <style lang="stylus" scoped>
@@ -130,19 +118,34 @@ export default {
   bottom 0
   background rgba(255, 255, 255, 0.7)
 
-  .playing
+  .wrapper
     position relative
+    height 20px
+    width 80%
     margin 10px 0
-    max-width 80%
     line-height 21px
-    text-align center
-    color $title-color
 
-    .tip
+    .playing
       position absolute
-      left -23px
       top 0
+      margin auto
       height 100%
+      width 100%
+      text-align center
+      color $title-color
+
+      .text
+        display inline-block
+        position relative
+        user-select none
+        text-decoration v-bind(isError)
+        cursor v-bind(isPlaying)
+
+      .tip
+        position absolute
+        left -23px
+        top 0
+        height 100%
 
   .btn-wrapper
     display flex

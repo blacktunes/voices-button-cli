@@ -1,22 +1,19 @@
 <template>
   <transition name="slide-down" appear>
     <div class="header">
-      <transition name="logo" appear>
-        <div class="logo" ref="logo" @click="logoClick">
-          {{ icon }}
-        </div>
-      </transition>
+      <img class="logo" v-if="showLogo" ref="logo" @click="logoClick" :src="HEADER.icon || ''" @error="logoError">
+      <div class="logo" v-else></div>
       <div
         class="title"
         :class="{ pointer: !playSetting.showHide && isShowPointer }"
         @click="changeHide"
-      >
-        {{ t(INFO_I18N.title) }}
-      </div>
+      >{{ t(INFO_I18N.title) }}</div>
+
       <template v-for="(btn, index) in btnList" :key="index">
         <IBtn v-if="btn.url" :url="btn.url" :img="btn.img" />
       </template>
-      <div class="search-btn" @click="showSearch">
+
+      <div class="search-btn" @click="showSearch" v-if="!isWideScreen">
         <svg
           viewBox="0 0 1024 1024"
           version="1.1"
@@ -31,18 +28,24 @@
           />
         </svg>
       </div>
-      <Search class="search" ref="search" />
+
+      <transition name="search">
+        <div v-if="isWideScreen" style="overflow: hidden">
+          <Search />
+        </div>
+      </transition>
       <div class="btn" :title="t(INFO_I18N.lang)" @click="changeLang">
         <svg
+          viewBox="0 0 1024 1024"
+          version="1.1"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          height="24"
-          width="24"
-          role="img"
-          aria-hidden="true"
+          p-id="1269"
+          width="30"
+          height="30"
         >
           <path
-            d="M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z"
+            d="M512 0c282.773333 0 512 229.226667 512 512S794.773333 1024 512 1024 0 794.773333 0 512 229.226667 0 512 0z m169.749333 554.666667H342.250667c9.429333 217.792 89.813333 384 169.749333 384 79.914667 0 160.32-166.208 169.749333-384z m-424.917333 0l-169.386667 0.021333c15.658667 157.568 117.034667 289.92 256.853334 349.76-50.282667-85.738667-82.069333-210.346667-87.466667-349.76z m679.722667 0.021333h-169.386667c-5.397333 139.434667-37.184 264.021333-87.466667 349.738667 139.818667-59.797333 241.194667-192.170667 256.853334-349.738667zM344.32 119.573333l-4.736 2.048C202.176 182.378667 102.912 313.536 87.466667 469.333333h169.386666c5.397333-139.434667 37.184-264.042667 87.466667-349.76zM512 85.333333l-3.2 0.085334c-78.848 4.352-157.226667 169.045333-166.549333 383.914666h339.498666C672.32 251.562667 591.936 85.333333 512 85.333333z m167.701333 34.218667l3.136 5.44C731.306667 210.496 761.877333 332.8 767.146667 469.333333h169.386666c-15.637333-157.589333-117.034667-289.941333-256.853333-349.781333z"
+            p-id="1270"
           />
         </svg>
       </div>
@@ -50,18 +53,18 @@
   </transition>
 </template>
 
-<script lang="ts">
-import { ref, inject, onMounted, Ref, computed, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { INFO_I18N, PlaySetting, SearchData, EVENT } from '@/assets/script/type'
+<script lang="ts" setup>
+import Setting from '@/../setting/setting.json'
+import bilibiliPng from '@/assets/image/bilibili-fill.png'
+import twitterPng from '@/assets/image/twitter-fill.png'
+import youtubePng from '@/assets/image/youtube-fill.png'
+import { INFO_I18N } from '@/assets/script/type'
 import IBtn from '@/components/common/IconBtn.vue'
 import Search from '@/components/Search/Search.vue'
-import Setting from '@/../setting/setting.json'
-import { useRouter } from 'vue-router'
-import mitt from '@/assets/script/mitt'
-import youtubePng from '@/assets/image/youtube-fill.png'
-import twitterPng from '@/assets/image/twitter-fill.png'
-import bilibiliPng from '@/assets/image/bilibili-fill.png'
+import { searchData } from '@/store/data'
+import { isShowSearch, isWideScreen, playSetting } from '@/store/setting'
+import { computed, onMounted, ref, Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const HEADER: {
   icon?: string;
@@ -85,126 +88,82 @@ const onLogoClick = (logo: Ref<HTMLElement>) => {
   return logoClick
 }
 
-export default {
-  components: {
-    IBtn,
-    Search
+const btnList = [
+  {
+    url: HEADER.youtube,
+    img: youtubePng
   },
-  setup() {
-    const btnList = [
-      {
-        url: HEADER.youtube,
-        img: youtubePng
-      },
-      {
-        url: HEADER.twitter,
-        img: twitterPng
-      },
-      {
-        url: HEADER.bilibili,
-        img: bilibiliPng
-      }
-    ]
+  {
+    url: HEADER.twitter,
+    img: twitterPng
+  },
+  {
+    url: HEADER.bilibili,
+    img: bilibiliPng
+  }
+]
 
-    // 点击图标时的放大动画
-    const logo = ref() as Ref<HTMLElement>
-    const logoClick = onLogoClick(logo)
+// 点击图标时的放大动画
+const logo = ref() as Ref<HTMLElement>
+const logoClick = onLogoClick(logo)
 
-    const isShowSearch = inject('isShowSearch') as Ref<boolean>
+const showLogo = ref(!!HEADER.icon)
+const logoError = () => {
+  showLogo.value = false
+}
 
-    const searchData: SearchData = inject('searchData') as SearchData
-
-    /**
-     * 显示/隐藏搜索并重置搜索
-     */
-    const showSearch = () => {
-      isShowSearch.value = !isShowSearch.value
-      if (!isShowSearch.value) {
-        searchData.value = ''
-        searchData.list.length = 0
-      }
-    }
-
-    const { t, locale } = useI18n()
-
-    /**
-     * 切换语言
-     */
-    const changeLang = () => {
-      searchData.value = ''
-      searchData.list.length = 0
-      if (locale.value === 'en-US') {
-        locale.value = 'zh-CN'
-        localStorage.setItem('lang', 'zh-CN')
-        document.title = t(INFO_I18N.title)
-      } else {
-        locale.value = 'en-US'
-        localStorage.setItem('lang', 'en-US')
-        document.title = t(INFO_I18N.title)
-      }
-    }
-
-    const playSetting = inject('playSetting') as PlaySetting
-    const changeHide = () => {
-      if (!isShowPointer.value || playSetting.showHide) return
-      playSetting.showHide = true
-      if (!isShowSearch.value) {
-        searchData.value = ''
-        searchData.list.length = 0
-      }
-    }
-
-    const isShowPointer = computed(() => {
-      return Number(t(INFO_I18N.hideVoiceTotal)) > Number(t(INFO_I18N.voiceTotal))
-    })
-
-    const search = ref()
-    const router = useRouter()
-
-    // 初次加载时获取localStorage的语言设定
-    onMounted(() => {
-      const lang = localStorage.getItem('lang')
-      if (lang) locale.value = lang
-      document.title = t(INFO_I18N.title)
-
-      router.isReady()
-        .then(() => {
-          if (router.currentRoute.value.query['k']) {
-            isShowSearch.value = true
-            searchData.value = router.currentRoute.value.query['k'] as string
-            (search.value as any).search()
-            nextTick(() => {
-              if (searchData.list.length > 0) {
-                mitt.emit(EVENT.autoScroll)
-              }
-            })
-          }
-        })
-    })
-
-    return {
-      icon: HEADER.icon || '',
-      btnList,
-      logo,
-      logoClick,
-      t,
-      showSearch,
-      changeLang,
-      changeHide,
-      isShowPointer,
-      playSetting,
-      search,
-      INFO_I18N
-    }
+/**
+ * 显示/隐藏搜索并重置搜索
+ */
+const showSearch = () => {
+  isShowSearch.value = !isShowSearch.value
+  if (!isShowSearch.value) {
+    searchData.value = ''
+    searchData.list.length = 0
   }
 }
+
+const { t, locale } = useI18n()
+
+/**
+ * 切换语言
+ */
+const changeLang = () => {
+  searchData.value = ''
+  searchData.list.length = 0
+  if (locale.value === 'en-US') {
+    locale.value = 'zh-CN'
+    localStorage.setItem('lang', 'zh-CN')
+    document.title = t(INFO_I18N.title)
+  } else {
+    locale.value = 'en-US'
+    localStorage.setItem('lang', 'en-US')
+    document.title = t(INFO_I18N.title)
+  }
+}
+
+const changeHide = () => {
+  if (!isShowPointer.value || playSetting.showHide) return
+  playSetting.showHide = true
+  if (!isShowSearch.value) {
+    searchData.value = ''
+    searchData.list.length = 0
+  }
+}
+
+const isShowPointer = computed(() => {
+  return Number(t(INFO_I18N.hideVoiceTotal)) > Number(t(INFO_I18N.voiceTotal))
+})
+
+// 初次加载时获取localStorage的语言设定
+onMounted(() => {
+  const lang = localStorage.getItem('lang')
+  if (lang && ['zh-CN', 'en-US'].includes(lang)) locale.value = lang
+  document.title = t(INFO_I18N.title)
+})
 </script>
 
 <style lang="stylus" scoped>
-.logo-enter-active
-  animation logo 1s
-  animation-delay 0.5s
-
 .pointer
   cursor pointer
 
@@ -261,8 +220,9 @@ export default {
     height 30px
     margin 0 10px 0 auto
     border-radius 50%
-    background rgba(245, 193, 187, 0.5)
+    background $main-color
     cursor pointer
+    transition transform 0.2s
 
     svg
       height 70%
@@ -272,22 +232,11 @@ export default {
 
     &:hover
       box-shadow 0px 0px 5px 0px #fff
+      transform scale(1.1)
 
     &:active
-      background rgba(245, 193, 187, 0.6)
-
-@media only screen and (min-width 550px)
-  .search-btn
-    display none
-
-@media only screen and (max-width 550px)
-  .search-btn
-    display block
-
-  .search
-    width 0px
-    margin 0
-    opacity 0
+      transition none
+      transform scale(1)
 
 @media (prefers-color-scheme dark)
   .header

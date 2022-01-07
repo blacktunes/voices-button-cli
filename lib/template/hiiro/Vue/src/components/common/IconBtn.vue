@@ -1,19 +1,14 @@
 <template>
   <a :href="url" class="icon" target="_blank">
-    <img draggable="false" :src="img" alt=""/>
+    <img draggable="false" :src="img" alt />
   </a>
 </template>
 
-<script lang="ts">
-export default {
-  props: {
-    url: {
-      type: String,
-      default: null
-    },
-    img: String
-  }
-}
+<script lang="ts" setup>
+defineProps<{
+  url?: string
+  img: string
+}>()
 </script>
 
 <style lang="stylus" scoped>
@@ -23,6 +18,9 @@ export default {
   margin 0 5px
   border-radius 50%
   background rgba(255, 255, 255, 0.5)
+
+  img
+    transition all 0.2s
 
   img
     height 80%
@@ -39,6 +37,7 @@ export default {
     background rgba(255, 255, 255, 0.6)
 
     img
+      transition none
       height 80%
       padding 10%
 </style>
