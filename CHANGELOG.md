@@ -1,5 +1,13 @@
 # voives-button-cli(语音按钮命令行工具)
 
+## [1.11.1](https://github.com/blacktunes/voices-button-cli/compare/v1.11.0...v1.11.1) (2022-03-15)
+
+
+### 🐛 Bug 修复
+
+* 修复linux系统中模块加载错误 ([e86e292](https://github.com/blacktunes/voices-button-cli/commit/e86e292)), closes [#2](https://github.com/blacktunes/voices-button-cli/issues/2)
+* 修复linux系统中模块加载错误 ([64a5d2e](https://github.com/blacktunes/voices-button-cli/commit/64a5d2e))
+
 # [1.11.0](https://github.com/blacktunes/voices-button-cli/compare/v1.10.0...v1.11.0) (2022-01-07)
 
 
