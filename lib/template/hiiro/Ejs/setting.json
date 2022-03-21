@@ -1,4 +1,6 @@
 {
+  "i18n": <%= I18N %>,
+  "neko_mimi": <%= NEKO_MIMI %>,
   "name": {
     "CN": {
       "title": "<%= TITLE_CN %>",
